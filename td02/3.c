@@ -152,6 +152,17 @@ Liste del(Liste l, int n)
 	return(l);
 }
 
+
+Liste fin(Liste l)
+{
+	while(l->nxt != NULL)
+	{
+		l = l->nxt;
+	}
+	return(l);
+}
+
+
 Liste concat( Liste l1, Liste l2)
 {
 	Liste tmp = l1;
@@ -159,10 +170,7 @@ Liste concat( Liste l1, Liste l2)
 	{
 		return(l2);
 	}
-	while(tmp->nxt != NULL)
-	{
-		tmp = tmp->nxt;
-	}
+	tmp = fin(l1);
 	tmp->nxt = l2;
 	return(l1);
 }
@@ -197,15 +205,6 @@ Liste concattri(Liste l1, Liste l2)
 }
 */
 
-Liste fin(Liste l)
-{
-	while(l->nxt != NULL)
-	{
-		l = l->nxt;
-	}
-	return(l);
-}
-
 Liste concattri(Liste l1, Liste l2, Liste l3)
 {
 	Liste tmp;
@@ -221,19 +220,37 @@ Liste concattri(Liste l1, Liste l2, Liste l3)
 			{
 				if(l1->val > l2->val)
 				{
-					tmp = fin(l3);
-					tmp->nxt = l2;
-					l2 = l2->nxt;
-					tmp->nxt->nxt = NULL;
+					if(l3 == NULL)
+					{
+						l3 = l2;
+						l2 = l2->nxt;
+						l3->nxt = NULL;
+					}
+					else
+					{
+						tmp = fin(l3);
+						tmp->nxt = l2;
+						l2 = l2->nxt;
+						tmp->nxt->nxt = NULL;
+					}
 					return(concattri(l1, l2, l3));
 				}
 				else
 				{
-					tmp = fin(l3);
-					tmp->nxt = l1;
-					l1 = l1->nxt;
-					tmp->nxt->nxt = NULL;
-					return(concattri(l1, l2, l3->nxt));
+					if(l3 == NULL)
+					{
+						l3 = l1;
+						l1 = l1->nxt;
+						l3->nxt = NULL;
+					}
+					else
+					{
+						tmp = fin(l3);
+						tmp->nxt = l1;
+						l1 = l1->nxt;
+						tmp->nxt->nxt = NULL;
+					}
+					return(concattri(l1, l2, l3));
 				}
 			}
 			else
@@ -251,7 +268,68 @@ Liste concattri(Liste l1, Liste l2, Liste l3)
 	return(concat(l1, l2));
 }
 
+void echange(Liste l1, Liste l2)
+{
+	int tmp;
+	tmp = l1->val;
+	l1->val = l2->val;
+	l2->val = tmp;
+}
 
+void triBulle(Liste l)
+{
+	Liste tmp = l;
+	while(!testtri(l))
+	{
+		while(tmp != NULL)
+		{
+			if(tmp->val > tmp->nxt->val)
+			{
+				echange(tmp, tmp->nxt);
+			}
+			tmp = tmp->nxt;
+		}
+	}
+}
+
+Liste flip(Liste l1, Liste l2)
+{
+	if(l1 == NULL)
+	{
+		return(l2);
+	}
+	else 
+	{
+		Liste tmp;
+		tmp = l1;
+		l1 = l1->nxt;
+		tmp->nxt = l2;
+		return(flip(l1, tmp));
+	}
+}
+
+
+
+Liste triFusion(Liste l)
+{
+	int i;
+	Liste res = vide();
+	Liste tmp1 = l;
+	Liste tmp2;
+	if(l->nxt == NULL)
+	{
+		return(l);
+	}
+	for(i = 0; i < taille(l)/2 - 1; i++)
+	{
+		tmp1 = tmp1->nxt;
+	}
+	tmp2 = tmp1->nxt;
+	tmp1->nxt = NULL;
+	affiche(l);
+	affiche(tmp2);
+	return(concattri(triFusion(l),triFusion(tmp2), res));
+}
 
 void main()
 {
@@ -271,8 +349,12 @@ void main()
 		t = rand()%100;
 		printf("\n %d, %d\n", t, src(l, t));
 	}
-	n = concattri(m, l, n);
-	affiche(m);
+	triBulle(l);
+	affiche(l);
+	l = flip(l, vide());
+	affiche(l);
+	l = triFusion(l);
+	affiche(l);
 	t = testtri(l);
 	printf("\ntri = %d \n", t);
 	printf("\ntaille = %d \n", taille(l));
